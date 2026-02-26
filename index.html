@@ -21,6 +21,15 @@
       --radius2:24px;
       --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
     }
+    :root[data-theme="light"]{
+      --bg:#eef3f9;
+      --card:#f8fafc;
+      --card2:#edf2f7;
+      --text:#0f172a;
+      --muted:#475569;
+      --border:rgba(15,23,42,.14);
+      --shadow: 0 14px 36px rgba(15,23,42,.18);
+    }
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -36,6 +45,13 @@
       align-items:center;
       justify-content:center;
       padding:22px;
+    }
+    :root[data-theme="light"] body{
+      background:
+        radial-gradient(1200px 800px at 20% -10%, rgba(59,130,246,.22), transparent 60%),
+        radial-gradient(900px 700px at 110% 10%, rgba(16,185,129,.16), transparent 55%),
+        radial-gradient(900px 700px at 30% 120%, rgba(244,63,94,.10), transparent 60%),
+        var(--bg);
     }
 
     /* Phone shell */
@@ -385,6 +401,72 @@
     [dir="ltr"] .item .left{text-align:left}
 
     .hide{display:none !important}
+    :root[data-theme="light"] .phone-wrap{
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(248,250,252,.92));
+    }
+    :root[data-theme="light"] .phone{
+      background:linear-gradient(180deg, rgba(248,250,252,.98), rgba(241,245,249,.98));
+      border-color:rgba(15,23,42,.10);
+    }
+    :root[data-theme="light"] .status{
+      color:rgba(15,23,42,.88);
+      border-bottom-color:rgba(15,23,42,.10);
+      background:rgba(255,255,255,.72);
+    }
+    :root[data-theme="light"] .pill,
+    :root[data-theme="light"] .btn,
+    :root[data-theme="light"] .kpi,
+    :root[data-theme="light"] .item,
+    :root[data-theme="light"] .tabs,
+    :root[data-theme="light"] .tag,
+    :root[data-theme="light"] .lang,
+    :root[data-theme="light"] .nav{
+      border-color:rgba(15,23,42,.12);
+      background:rgba(255,255,255,.72);
+    }
+    :root[data-theme="light"] .card{
+      background:rgba(255,255,255,.78);
+      border-color:rgba(15,23,42,.12);
+      box-shadow: 0 10px 22px rgba(15,23,42,.12);
+    }
+    :root[data-theme="light"] .btn:hover{
+      background:rgba(15,23,42,.08);
+      border-color:rgba(15,23,42,.18);
+    }
+    :root[data-theme="light"] .btn.primary{
+      background:rgba(59,130,246,.16);
+      border-color:rgba(59,130,246,.34);
+    }
+    :root[data-theme="light"] .bar,
+    :root[data-theme="light"] .divider{
+      border-color:rgba(15,23,42,.10);
+      background:rgba(15,23,42,.10);
+    }
+    :root[data-theme="light"] .tab{
+      color:rgba(15,23,42,.78);
+    }
+    :root[data-theme="light"] .navbtn{
+      color:rgba(15,23,42,.78);
+    }
+    :root[data-theme="light"] .navbtn.active{
+      background:rgba(15,23,42,.08);
+      border-color:rgba(15,23,42,.14);
+    }
+    :root[data-theme="light"] .bottom-nav{
+      background:linear-gradient(180deg, transparent, rgba(241,245,249,.72) 30%, rgba(226,232,240,.90));
+      border-top-color:rgba(15,23,42,.10);
+    }
+    :root[data-theme="light"] .modal{
+      border-color:rgba(15,23,42,.14);
+      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.96));
+      box-shadow: 0 14px 36px rgba(15,23,42,.2);
+    }
+    :root[data-theme="light"] input,
+    :root[data-theme="light"] select,
+    :root[data-theme="light"] textarea{
+      border-color:rgba(15,23,42,.14);
+      background:rgba(255,255,255,.9);
+    }
   </style>
 </head>
 
@@ -408,6 +490,10 @@
               <button id="btnHe" class="active" type="button">עברית</button>
               <button id="btnEn" type="button">EN</button>
             </div>
+            <button class="btn ghost" id="toggleTheme" type="button" aria-pressed="false">
+              <span class="icon" aria-hidden="true"></span>
+              <span id="themeBtnText">Light mode</span>
+            </button>
             <button class="btn ghost" id="openSettings" type="button">
               <span class="icon" aria-hidden="true"></span>
               <span id="settingsBtn">הגדרות</span>
@@ -1033,8 +1119,29 @@
   };
 
   let lang = "he";
+  let theme = "dark";
 
   function t(key){ return STR[lang][key] ?? key; }
+
+  function updateThemeButton(){
+    const btn = document.getElementById("toggleTheme");
+    const text = document.getElementById("themeBtnText");
+    if(!btn || !text) return;
+    const isDark = theme === "dark";
+    text.textContent = isDark ? "Light mode" : "Dark mode";
+    btn.setAttribute("aria-pressed", String(!isDark));
+  }
+
+  function setTheme(newTheme){
+    theme = (newTheme === "light") ? "light" : "dark";
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem("theme", theme);
+    updateThemeButton();
+  }
+
+  function toggleTheme(){
+    setTheme(theme === "dark" ? "light" : "dark");
+  }
 
   function setLang(newLang){
     lang = newLang;
@@ -1197,6 +1304,7 @@
   document.getElementById("btnEn").addEventListener("click", () => setLang("en"));
   document.getElementById("btnHe2").addEventListener("click", () => setLang("he"));
   document.getElementById("btnEn2").addEventListener("click", () => setLang("en"));
+  document.getElementById("toggleTheme").addEventListener("click", toggleTheme);
 
   // ----- Clock -----
   function pad(n){ return n.toString().padStart(2,"0"); }
@@ -1265,6 +1373,7 @@
   }
 
   // Init
+  setTheme(localStorage.getItem("theme") || "dark");
   setLang("he");
 </script>
 </body>
